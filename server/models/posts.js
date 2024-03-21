@@ -12,9 +12,17 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
+        UserId: {
+            type: DataTypes.INTEGER, 
+            allowNull: false
+        },
     });
 
     Posts.associate = (models)=>{
+        Posts.belongsTo(models.Users, {
+            foreignKey: 'userId', 
+            onDelete: 'cascade'
+        });
         Posts.hasMany(models.Comments,{
             onDelete:"cascade"
         })

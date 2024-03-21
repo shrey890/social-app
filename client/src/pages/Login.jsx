@@ -31,7 +31,7 @@ const Login = () => {
 };
 
 	return (
-		<div className="createPostPage">
+		<div className="loginContainer">
 			<input
 				onChange={(e) => setUsername(e.target.value)}
 				type="text"

@@ -8,6 +8,9 @@ import Registration from "./pages/Registration";
 import { useEffect, useState } from "react";
 import { AuthContext } from "./context/AuthContext";
 import axios from "axios";
+import PageNotFound from "./pages/PageNotFound";
+import Profile from "./pages/Profile";
+import ChangePassword from "./pages/ChangePassword";
 const App = () => {
 	const [authState, setAuthState] = useState({
 		username: "",
@@ -15,7 +18,8 @@ const App = () => {
 		status: false,
 	});
 	useEffect(() => {
-		axios.get("http://localhost:3000/auth/auth", {
+		axios
+			.get("http://localhost:3000/auth/auth", {
 				headers: {
 					accessToken: localStorage.getItem("accessToken"),
 				},
@@ -34,24 +38,30 @@ const App = () => {
 	}, []);
 	const logout = () => {
 		localStorage.removeItem("accessToken");
-		setAuthState({ username:'',id:0, status: false });
+		setAuthState({ username: "", id: 0, status: false });
 	};
 	return (
 		<AuthContext.Provider value={{ authState, setAuthState }}>
 			<Router>
 				<div>
 					<div className="navbar">
-						<Link to="/"> Home Page</Link>
-						<Link to="/createpost"> Create A Post</Link>
-						{authState.status ? (
-							<button onClick={logout}>Logout</button>
-						) : (
-							<>
-								<Link to="/login">Login</Link>
-								<Link to="/registration">Registration</Link>
-							</>
-						)}
-						<h1>{authState.username}</h1>
+						<div className="links">
+							{!authState.status ? (
+								<>
+									<Link to="/login"> Login</Link>
+									<Link to="/registration"> Registration</Link>
+								</>
+							) : (
+								<>
+									<Link to="/"> Home</Link>
+									<Link to="/createpost"> Create A Post</Link>
+								</>
+							)}
+						</div>
+						<div className="loggedInContainer">
+							<h1>{authState.username} </h1>
+							{authState.status && <button onClick={logout}> Logout</button>}
+						</div>
 					</div>
 					<Routes>
 						<Route path="/" element={<Home />} />
@@ -59,6 +69,9 @@ const App = () => {
 						<Route path="/post/:id" element={<Post />} />
 						<Route path="/login" element={<Login />} />
 						<Route path="/registration" element={<Registration />} />
+						<Route path="*" element={<PageNotFound />} />
+						<Route path="/changepass" element={<ChangePassword/>} />
+						<Route path="/profile/:id" element={<Profile />} />
 					</Routes>
 				</div>
 			</Router>
