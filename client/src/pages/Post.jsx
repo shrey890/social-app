@@ -1,11 +1,13 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 const Post = () => {
 	let { id } = useParams();
 	const [postObj, setPostObj] = useState({});
 	const [comments, setComments] = useState([]);
 	const [newComment, setNewComment] = useState("");
+	const { authState } = useContext(AuthContext);
 	useEffect(() => {
 		axios.get(`http://localhost:3000/posts/byId/${id}`).then((res) => {
 			setPostObj(res.data);
@@ -15,7 +17,8 @@ const Post = () => {
 		});
 	}, []);
 	const addComment = () => {
-		axios.post(
+		axios
+			.post(
 				`http://localhost:3000/comments`,
 				{
 					commentBody: newComment,
@@ -23,18 +26,38 @@ const Post = () => {
 				},
 				{
 					headers: {
-						accessToken: sessionStorage.getItem("accessToken"),
+						accessToken: localStorage.getItem("accessToken"),
 					},
 				}
 			)
 			.then((res) => {
 				if (res.data.error) {
-					console.log(res.data.error)
+					console.log(res.data.error);
 				} else {
-					const commentToAdd = { commentBody: newComment };
+					const commentToAdd = {
+						commentBody: newComment,
+						username: res.data.username,
+					};
 					setComments([...comments, commentToAdd]);
 					setNewComment("");
 				}
+			});
+	};
+	const deleteComment = (id) => {
+		
+		axios.delete(`http://localhost:3000/comments/${id}`, {
+				headers: {
+					accessToken: localStorage.getItem("accessToken"),
+				},
+			})
+			.then(() => {
+				setComments(comments.filter((val)=>{
+					return val.id!==id
+				}));
+			})
+			.catch((error) => {
+				console.error("Error deleting comment:", error);
+				alert("Failed to delete comment. Please try again later.");
 			});
 	};
 	return (
@@ -60,7 +83,15 @@ const Post = () => {
 				<div className="listOfComments">
 					{comments.map((comment, key) => (
 						<div className="comment" key={key}>
+							<label htmlFor="">
+								<b>{comment.username} - </b>
+							</label>
 							{comment.commentBody}
+							<span>
+								{authState.username === comment.username && (
+									<button onClick={() => deleteComment(comment.id)}>❌</button>
+								)}
+							</span>
 						</div>
 					))}
 				</div>

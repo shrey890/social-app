@@ -1,7 +1,9 @@
 import axios from "axios";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 const Login = () => {
+  const {setAuthState} = useContext(AuthContext);
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [errors, setError] = useState("");
@@ -13,8 +15,13 @@ const Login = () => {
             if (res.data.error) {
                 setError(res.data.error);
             } else {
-                sessionStorage.setItem("accessToken", res.data.accessToken);
-                navigate("/"); // Redirect to home page or any other route
+                localStorage.setItem("accessToken", res.data.token);
+                setAuthState({
+                  username:username,
+                  id:res.data.id,
+                  status:true
+                })
+                navigate("/"); 
             }
         })
         .catch((error) => {

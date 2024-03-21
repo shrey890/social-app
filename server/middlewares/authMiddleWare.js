@@ -4,6 +4,7 @@ const validateToken  = (req,res,next)=>{
     if(!accessToken) return res.json('user not logged in')
     try {
         const validToken = verify(accessToken,'importantsecret')
+      req.user = validToken
         if(validToken){
             return next()
         }
