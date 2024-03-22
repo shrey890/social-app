@@ -3,6 +3,7 @@ const app = express();
 const db = require('./models')
 const postRouter = require('./routes/posts.js')
 const cors = require('cors')
+require('dotenv').config()
 app.use(cors())
 app.use(express.json())
 // ! router
@@ -14,7 +15,7 @@ app.use('/auth',usersRouter)
 const likesRouter = require('./routes/Likes.js')
 app.use('/like',likesRouter)
 db.sequelize.sync().then(()=>{
-    app.listen(3000,()=>{
+    app.listen(process.env.PORT||3000,()=>{
         console.log('listening on http://localhost:3000')
     })
 })
